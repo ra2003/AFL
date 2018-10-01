@@ -549,7 +549,11 @@ int main(int argc, char** argv) {
 
   if (waitpid(pid, &status, 0) <= 0) PFATAL("waitpid() failed");
 
-  if (!getenv("AFL_KEEP_ASSEMBLY")) unlink(modified_file);
+  if (!getenv("AFL_KEEP_ASSEMBLY")) {
+    unlink(modified_file);
+  } else {
+    SAYF("Assembly file is written to: %s\n", modified_file);
+  }
 
   exit(WEXITSTATUS(status));
 
