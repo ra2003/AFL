@@ -201,7 +201,31 @@ int __afl_persistent_loop(unsigned int max_cnt) {
 
     cycle_cnt  = max_cnt;
     first_pass = 0;
-    return 1;
+
+    /* Don't make "return 1" here since the AFL_LOOP() macro can be used
+       not only as the end of the loop -> exit case. There are two possible
+       usages for the server applications:
+       1. Easy and expected one:
+          handle_io(..)
+          {
+            ...
+            while (__AFL_LOOP(..)) {
+              ...
+            }
+            ...
+        2. A little bit more complicated one:
+          handle_io(..)
+          {
+            ...
+          }
+          completion_fn(..) or error_fn(..)
+          {
+            if (!__AFL_LOOP(..)) {
+              exit(..)
+            }
+          }
+       It seems that in both case the SIGSTOP should be sent to signal
+       AFL the iteration is completed. */
 
   }
 
